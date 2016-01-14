@@ -46,8 +46,9 @@ def convert_roster_format(roster)
 end
 
 hashed_roster = convert_roster_format(roster)
-
-print hashed_roster[2]
+puts ""
+puts "hashed_roster"
+print hashed_roster
 puts ""
 # => { "Number" => 31, "Name" => "Harvey Kay", "Position" => "Shooting Guard", "Points per Game" => [0, 30, 16, 0, 25] }
 
