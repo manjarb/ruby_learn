@@ -91,10 +91,151 @@ class Sudoku
     return column_converted_scan
   end
 
+  def convert_grid_into_row(grid_board)
+
+    converted_grid_board = Array.new(grid_board.length){ Array.new(grid_board.length, 0) }
+
+    out_row_counter = 0
+    out_column_counter = 0
+
+    temp_grid_scan = []
+    temp_grid_scan_inside = []
+
+    temp_grid_loop_count = grid_board.length - 1
+    outer_grid_loop_start = 0
+    outer_grid_loop_end = (grid_board.length / 3) - 1
+    limit_counter = grid_board.length / 3
+
+    second_position_counter = 0
+    second_limit_counter = (grid_board.length / 3) - 1
+
+
+        # puts ""
+        # puts "grid_board"
+        # print grid_board[1][0]
+        # puts ""
+        # puts ""
+
+    for k in outer_grid_loop_start..outer_grid_loop_end
+      for i in 0..temp_grid_loop_count
+
+        inside_position = second_position_counter
+        inside_limit = second_limit_counter
+
+        for j in inside_position..inside_limit 
+          
+          converted_grid_board[i][j] = grid_board[out_row_counter][out_column_counter]
+
+          # puts ""
+          # print converted_grid_board
+          # puts ""
+          # print "#{out_row_counter} : #{out_column_counter}"
+          # puts ""
+          # print "#{grid_board[1][0]}"
+          # puts ""
+
+          out_column_counter += 1
+          if out_column_counter >= grid_board.length
+            out_column_counter = 0
+            out_row_counter += 1
+          end
+
+          if out_row_counter >= grid_board.length
+            out_row_counter = 0
+          end
+
+        end
+
+        inside_position = i + 3
+        inside_limit = (inside_limit) + 3 
+
+      end
+      second_position_counter += 3
+      second_limit_counter += 3
+    end
+
+
+    return converted_grid_board
+
+  end
+
   def grid_scan?(board_grid)
 
-    return board_grid
+    temp_grid_scan = []
+    temp_grid_scan_inside = []
+
+    temp_grid_loop_count = board_grid.length - 1
+    outer_grid_loop_start = 0
+    outer_grid_loop_end = (board_grid.length / 3) - 1
+    limit_counter = board_grid.length / 3
+
+    second_position_counter = 0
+    second_limit_counter = (board_grid.length / 3) - 1
+
+    for k in outer_grid_loop_start..outer_grid_loop_end
+      for i in 0..temp_grid_loop_count
+
+        # puts ""
+        # puts i
+        # puts ""
+
+        inside_position = second_position_counter
+        inside_limit = second_limit_counter
+
+        for j in inside_position..inside_limit 
+          temp_grid_scan_int = board_grid[i]
+          temp_grid_scan_inside << temp_grid_scan_int[j]
+
+        end
+
+        inside_position = i + 3
+        inside_limit = (inside_limit) + 3 
+
+        if temp_grid_scan_inside.length == 9
+          temp_grid_scan << temp_grid_scan_inside
+          temp_grid_scan_inside = []
+        end
+
+      end
+      second_position_counter += 3
+      second_limit_counter += 3
+    end
+
+    grid_intersection_scan = row_scan?(temp_grid_scan)
+    grid_convert_scan = convert_grid_into_row(grid_intersection_scan)
+
+    return grid_convert_scan
+    #print temp_grid_scan
   end
+
+  def compare_result_scan(row_scan,col_scan,grid_scan)
+    compare_result = Array.new(row_scan.length){ Array.new(row_scan.length, 0) }
+    first_compare_result = Array.new(row_scan.length){ Array.new(row_scan.length, 0) }
+    compare_result = row_scan
+    first_compare_result = row_scan
+
+    for i in 0..row_scan.length - 1
+      for j in 0..row_scan.length - 1
+
+        if row_scan[i][j].kind_of?(Array)
+          first_compare_result[i][j] = row_scan[i][j] & col_scan[i][j]
+        end
+        
+      end
+    end
+
+    for i in 0..first_compare_result.length - 1
+      for j in 0..first_compare_result.length - 1
+
+        if first_compare_result[i][j].kind_of?(Array)
+          compare_result[i][j] = first_compare_result[i][j] & grid_scan[i][j]
+        end
+        
+      end
+    end
+
+    return compare_result
+  end  
 
   def solve!
     original_board = create_board_array()
@@ -105,18 +246,29 @@ class Sudoku
     row_board = row_scan?(row_board)
     column_board = column_scan?(column_board)
     grid_board = grid_scan?(grid_board)
+
+    compare_board = compare_result_scan(row_board,column_board,grid_board)
+
+    row_board = row_scan?(row_board)
+    column_board = column_scan?(column_board)
+    grid_board = grid_scan?(grid_board)
+
+    compare_board = compare_result_scan(row_board,column_board,grid_board)
          
     puts "solve!"
-    print original_board
-    puts ""
-    puts "row" 
-    print row_board
-    puts ""
-    puts "column" 
-    print column_board
-    puts ""
-    puts "grid" 
-    print grid_board
+    # print original_board
+    # puts ""
+    # puts "row" 
+    # print row_board
+    # puts ""
+    # puts "column" 
+    # print column_board
+    # puts ""
+    # puts "grid" 
+    # print grid_board
+    # puts ""
+    puts "compare" 
+    print compare_board
     puts ""
 
 
@@ -144,9 +296,11 @@ board_string = File.readlines('sample.unsolved.txt').first.chomp
 
 game = Sudoku.new(board_string)
 
-# Remember: this will just fill out what it can and not "guess"
-game.solve!
-
 puts ""
 
 puts game.board
+
+puts ""
+
+# Remember: this will just fill out what it can and not "guess"
+game.solve!
