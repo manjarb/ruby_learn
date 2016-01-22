@@ -46,6 +46,8 @@ class PersonParser
     # If we've already parsed the CSV file, don't parse it again.
     # Remember: @people is +nil+ by default.
     @people = CSV.read(@file)
+    print @people
+    puts ""
     return @people if @people
     
     # We've never called people before, now parse the CSV file
